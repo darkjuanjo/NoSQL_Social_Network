@@ -21,6 +21,7 @@ const userControllers = {
             if(!userData)
             {
                 res.status(404).json({message: "No user with this Id found!"});
+                return
             }
             res.json(userData);
         })
@@ -32,6 +33,33 @@ const userControllers = {
     NewUser({body}, res) {
         User.create(body)
         .then(newUserData => res.json(newUserData))
+        .catch(err => res.status(400).json(err));
+    },
+    EditUser({params, body}, res) {
+        User.findOneAndUpdate({_id: params.id}, body, {new: true, runValidators: true})
+        .then(userData => {
+            if(!userData)
+            {
+                res.status(404).json({message: "No user with this Id found!"})
+                return
+            }
+            res.json(userData);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(400).json(err);
+        });
+    },
+    DeleteUser({params}, res) {
+        User.findOneAndDelete({_id: params.id})
+        .then(userData => {
+            if(!userData)
+            {
+                res.status(404).json({message: "No user with this Id found!"})
+                return
+            }
+            res.json(userData);
+        })
         .catch(err => res.status(400).json(err));
     }
 }
