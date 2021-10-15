@@ -67,27 +67,58 @@ const thoughtController = {
             console.log(err);
             res.status(400).json(err);
         })
+    },
+    EditThought ({params, body}, res) {
+        Thought.findOneAndUpdate({_id: params.id}, {thoughtText:body.thoughtText}, {new: true})
+        .then(thoughtData => {
+            if(!thoughtData)
+            {
+                res.status(404).json({message: "No thought with this Id found!"})
+                return
+            }
+            res.json(thoughtData);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(400).json(err);
+        });
+    },
+    DeleteThought ({params}, res) {
+        User.find({})
+        .then(userData => {
+            for(let i = 0; i < userData.length; i++) {
+                for(let ii = 0; ii < userData[i].thoughts.length; ii++)
+                {
+                    if(JSON.stringify(userData[i].thoughts[ii]).split('"')[1] === params.id)
+                    {
+                       User.findOneAndUpdate(
+                           {_id: userData[i]._id},
+                           {$pull :{ thoughts: params.id }},
+                           {new: true})
+                           .then(userData => {
+                               if(!userData) {
+                                   res.status(404).json({message:'No user with that thought exits!'});
+                                   return
+                               }
+                               Thought.findOneAndDelete({_id: params.id})
+                               .then(deleted => {
+                                   if(!deleted)
+                                   {
+                                       res.status(404).json({message: 'No thought with that id found!'});
+                                       return
+                                   }
+                                   res.json(deleted);
+                               })
+                           })
+                           .catch(err => {
+                            console.log(err);
+                            res.status(400).json(err);
+                        });          
+                    }
+                }
+            }            
+        })
     }
-    // createThought({params,body}, res) {
-    //     Thought.create(body)
-    //     .then(newThought => {
-    //         User.findOneAndUpdate(
-    //             {_id: params.id},
-    //             {$push: {thoughts: newThought._id}}
-    //             )
-    //             .then(userData => {
-    //                 if(!userData)
-    //                 {
-    //                     res.status(404).json({message: "No user found with this Id!"});
-    //                     Thought.findOneAndDelete({_id: newThought._id})
-    //                     .then(invalidThought => res.json({message: "Thought Deleted!"}));
-    //                 }
-    //                 res.json(userData);
-    //             })
-    //             .catch(err => res.status(400).json(err));
-    //     })
-    //     .catch(err => res.status(400).json(err));
-    // }
 }
 
 module.exports = thoughtController;
