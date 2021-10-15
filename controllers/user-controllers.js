@@ -3,9 +3,6 @@ const { User } = require('../models');
 const userControllers = {
     getAllUsers(req, res) {
         User.find({})
-        .populate({
-            path: 'thoughts'
-        })
         .then(usersData => res.json(usersData))
         .catch(err => {
             console.log(err);
@@ -14,9 +11,6 @@ const userControllers = {
     },
     getUserbyId({params}, res) {
         User.findOne({_id: params.id})
-        .populate({
-            path: 'thoughts'
-        })
         .then(userData => {
             if(!userData)
             {
