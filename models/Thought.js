@@ -20,6 +20,14 @@ const ReactionSchema = new Schema({
         default: Date.now(),
         get: (createdDate) => dateFormat(createdDate)
     }
+},
+{
+    toJSON: {
+        getters: true
+
+    },
+    _id:false,
+    id: false
 });
 
 const ThoughtSchema = new Schema ({
@@ -39,7 +47,7 @@ const ThoughtSchema = new Schema ({
         type: String,
         required: true
     },
-    reactions: []
+    reactions: [ReactionSchema]
 },
 {
     toJSON: {

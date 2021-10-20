@@ -84,6 +84,7 @@ const thoughtController = {
         });
     },
     DeleteThought ({params}, res) {
+        let flag = 0;
         //get all users
         User.find({})
         .then(userData => {
@@ -119,11 +120,13 @@ const thoughtController = {
                             res.status(400).json(err);
                         });          
                     }
+                    if(i === userData.length-1 && flag === 0)
+                    res.status(404).json({message: 'No thought with that Id found!'});
                 }
             }            
         })
     },
-    createReaction({params, body}, req ){
+    createReaction({params, body}, res ){
         Thought.findOneAndUpdate(
             {_id: params.thoughtId},
             {$addToSet: {reactions: body}},
@@ -139,20 +142,23 @@ const thoughtController = {
         })
         .catch(err => res.status(400).json(err));
     },
-    deleteReaction({params}, req) {
+    deleteReaction({params}, res) {
         Thought.find()
         .then(thoughtsData => {
-            if(!thoughts)
+            if(!thoughtsData)
             {
-                return res.json("No reaction to delete was found")
+                res.json("No reaction to delete was found");
+                return
             }
+            console.log(thoughtsData);
             for(let i = 0; i < thoughtsData.length; i++){
                 for(let ii = 0; ii < thoughtsData[i].reactions.length; ii++) {
-                    if(JSON.stringify(thoughtsData[i].reactions[ii]._id).split('"')[1] === params.id)
+                    if(JSON.stringify(thoughtsData[i].reactions[ii].reactionId).split('"')[1] === params.thoughtId)
                     {
+                        console.log('found!!');
                         Thought.findOneAndUpdate(
                             {_id: thoughtsData[i]._id},
-                            {$pull: {reactions: {_id: params.id}}},
+                            {$pull: {reactions: {reactionId: params.thoughtId}}},
                             {new: true}
                         )
                         .then(thoughtData => {
