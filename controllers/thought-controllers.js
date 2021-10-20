@@ -50,7 +50,7 @@ const thoughtController = {
             .then(thought => {
                 User.findOneAndUpdate(
                     {_id: params.id},
-                    {$push: {thoughts: thought._id}}
+                    {$addToSet: {thoughts: thought._id}}
             )
             .catch(err => {
                 console.log(err);
@@ -126,7 +126,7 @@ const thoughtController = {
     createReaction({params, body}, req ){
         Thought.findOneAndUpdate(
             {_id: params.thoughtId},
-            {$push: {reactions: body}},
+            {$addToSet: {reactions: body}},
             {new: true, runValidators: true}
         )
         .then(reactionData => {
